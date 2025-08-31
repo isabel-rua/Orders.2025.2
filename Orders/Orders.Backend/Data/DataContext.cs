@@ -14,7 +14,9 @@ public class DataContext : DbContext
     {
     }
 
-    //Propiedad DbSet (generica)
+    //Propiedad DbSet (generica) / Heredado de Entities
+    public DbSet<Category> Categories { get; set; }
+
     public DbSet<Country> Countries { get; set; }
 
     //Indice único por nombre de la tabla Country
@@ -23,6 +25,7 @@ public class DataContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<Category>().HasIndex(x => x.Name).IsUnique();
         modelBuilder.Entity<Country>()
             .HasIndex(x => x.Name) // => notación lambda / notación de flecha / Indice por el nombre
             .IsUnique();
