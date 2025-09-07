@@ -8,12 +8,12 @@ using Orders.Shared.Interfaces;
 
 namespace Orders.Shared.Entities;
 
-public class Category : IEntityWithName
+public class State : IEntityWithName
 {
     public int Id { get; set; }
 
     //Display para mostrar al usuario el nombre como uno quiere "decorado"
-    [Display(Name = "Categoría")]
+    [Display(Name = "Estado")]
 
     //MaxLength se usa para definir de una vez la cantidad de caracteres máxima
     /*ErrorMessage se usa para colocar error de una vez como un tipo de validación,
@@ -24,4 +24,19 @@ public class Category : IEntityWithName
     // Required para que el campo sea obligatorio
     [Required(ErrorMessage = "El campo {0] es obligatorio.")]
     public string Name { get; set; } = null!; //Condición null! es para no permitir null en ese campo
+
+    //Para crear la relación con Country (1:N)
+
+    //Se crea la propiedad que va a ser la llave foránea (CountryId)
+    public int CountryId { get; set; }
+
+    //Se crea propiedad que sea del tipo con la que se va a relacionar (Country y State)
+    public Country? Country { get; set; } //Si puede ser null
+
+    //Relación con ciudades (1:N)
+    public ICollection<City>? Cities { get; set; }
+
+    //Propiedad de lectura para saber cantidad de ciudades del estado
+    [Display(Name = "Ciudades")]
+    public int CitiesNumber => Cities == null ? 0 : Cities.Count;
 }

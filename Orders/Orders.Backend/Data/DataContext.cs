@@ -14,20 +14,36 @@ public class DataContext : DbContext
     {
     }
 
-    //Propiedad DbSet (generica) / Heredado de Entities
+    //Propiedad DbSet (generica) / Heredado de Entities (Esto es opcional)
+    //Para acceder a la colección de categorías en la base de datos
     public DbSet<Category> Categories { get; set; }
 
+    public DbSet<City> Cities { get; set; }
     public DbSet<Country> Countries { get; set; }
+    public DbSet<State> States { get; set; }
 
-    //Indice único por nombre de la tabla Country
+    //Para indices únicos por nombre de las tablas de la BD ↓
+
     //Se sobrescribe el método OnModelCreating para configurar el modelo de datos.
     //Esto es una validación a nivel de base de datos
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<Category>().HasIndex(x => x.Name).IsUnique();
-        modelBuilder.Entity<Country>()
-            .HasIndex(x => x.Name) // => notación lambda / notación de flecha / Indice por el nombre
-            .IsUnique();
+        modelBuilder.Entity<City>().HasIndex(x => new { x.StateId, x.Name }).IsUnique(); //Indice compuesto "Un solo nombre por ciudad"
+        modelBuilder.Entity<Country>().HasIndex(x => x.Name).IsUnique();
+        modelBuilder.Entity<State>().HasIndex(x => new { x.CountryId, x.Name }).IsUnique(); //Indice compuesto "Un solo nombre por país"
+
+        //Deshabilitar el borrado en cascada (DeleteBehavior.Restrict) ↓
+        DisableCascadingDelete(modelBuilder);
+    }
+
+    private void DisableCascadingDelete(ModelBuilder modelBuilder)
+    {
+        var relationships = modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys());
+        foreach (var relationship in relationships)
+        {
+            relationship.DeleteBehavior = DeleteBehavior.Restrict;
+        }
     }
 }

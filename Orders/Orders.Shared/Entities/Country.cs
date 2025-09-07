@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Orders.Shared.Interfaces;
 
 namespace Orders.Shared.Entities;
 
-public class Country
+public class Country : IEntityWithName
 {
     public int Id { get; set; }
 
@@ -18,4 +19,11 @@ public class Country
     // Required para que el campo sea obligatorio
     [Required(ErrorMessage = "El campo {0] es obligatorio.")]
     public string Name { get; set; } = null!; //Condición null! es para no permitir null en ese campo
+
+    //Para crear la relación con State (1:N)
+    public ICollection<State>? States { get; set; } //Se coloca ? porque si permite null
+
+    //Propiedad de lectura para saber cantidad de estados del país
+    [Display(Name = "Estados/Departamentos")]
+    public int StatesNumber => States == null ? 0 : States.Count;
 }
