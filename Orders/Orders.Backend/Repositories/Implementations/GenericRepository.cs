@@ -3,7 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Any;
 using Microsoft.VisualBasic;
 using Orders.Backend.Data;
+using Orders.Backend.Helpers;
 using Orders.Backend.Repositories.Interfaces;
+using Orders.Shared.DTOs;
 using Orders.Shared.Responses;
 
 namespace Orders.Backend.Repositories.Implementations;
@@ -22,6 +24,30 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class //T es
         _context = context;
         //Esto representa la colección de entidades del tipo T en el contexto de datos.
         _entity = _context.Set<T>();
+    }
+
+    public virtual async Task<ActionResponse<IEnumerable<T>>> GetAsync(PaginationDTO pagination)
+    {
+        var queryable = _entity.AsQueryable();
+
+        return new ActionResponse<IEnumerable<T>>
+        {
+            WasSuccess = true,
+            Result = await queryable
+                .Paginate(pagination)
+                .ToListAsync()
+        };
+    }
+
+    public virtual async Task<ActionResponse<int>> GetTotalRecordsAsync(PaginationDTO pagination)
+    {
+        var queryable = _entity.AsQueryable();
+        double count = await queryable.CountAsync();
+        return new ActionResponse<int>
+        {
+            WasSuccess = true,
+            Result = (int)count
+        };
     }
 
     //Devuelve un objeto de tipo ActionResponse<T> (clase que se creó para manejar respuestas)

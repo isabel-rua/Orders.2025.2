@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+Ôªøusing System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Orders.Backend.Data;
 using Orders.Backend.Repositories.Implementations;
@@ -11,47 +11,69 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers()
-    .AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles); //Para ignorar redundancias cÌclicas
+    .AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles); //Para ignorar redundancias c√≠clicas
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-//Inyectar conexiÛn con SQL Server
+//Inyectar conexi√≥n con SQL Server
 //Se referencia que tipo de motor se va a usar
-//"Name=LocaltConnection" es para que tome el string de conexiÛn del appsettings.json
-builder.Services.AddDbContext<DataContext>(x => x.UseSqlServer("name=LocaltConnection"));
+//"Name=LocaltConnection" es para que tome el string de conexi√≥n del appsettings.json
+
+//Este es el c√≥digo original de la gu√≠a ‚Üì
+//builder.Services.AddDbContext<DataContext>(x => x.UseSqlServer("name=LocaltConnection"));
+
+//MODIFICO lo de arriba ‚Üë con var connStr para poder usar el CommandTimeout
+//para poder ejecutar con mas tiempo scripts SQL de gran tama√±o
+var connStr = builder.Configuration.GetConnectionString("LocaltConnection");
+builder.Services.AddDbContext<DataContext>(options =>
+    options.UseSqlServer(
+        connStr,
+        sql => sql.CommandTimeout(600) // ‚¨ÖÔ∏è 600s = 10 min
+    )
+);
 
 //Inyectar el servicio de SeedDb de forma "Transient" (transitorio)
 builder.Services.AddTransient<SeedDb>();
 
-//InyecciÛn de dependencias de forma "Scoped" (alcance o ·mbito)
+//Inyecci√≥n de dependencias de forma "Scoped" (alcance o √°mbito)
 //Antes de hacer el bill se le dice "que me inyecte al Builder.Servicies,
-//adicione de tipo de la unidad de tabajo genÈrico el repositorio genÈrico
+//adicione de tipo de la unidad de tabajo gen√©rico el repositorio gen√©rico
 builder.Services.AddScoped(typeof(IGenericUnitOfWork<>), typeof(GenericUnitOfWork<>));
 
-//y agregueme del GenericRepositor, agrege o implemente repositorio genÈrico"
+//y agregueme del GenericRepositor, agrege o implemente repositorio gen√©rico"
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
+builder.Services.AddScoped<ICitiesRepository, CitiesRepository>();
 builder.Services.AddScoped<ICountriesRepository, CountriesRepository>();
 builder.Services.AddScoped<IStatesRepository, StatesRepository>();
 
+builder.Services.AddScoped<ICitiesUnitOfWork, CitiesUnitOfWork>();
 builder.Services.AddScoped<ICountriesUnitOfWork, CountriesUnitOfWork>();
 builder.Services.AddScoped<IStatesUnitOfWork, StatesUnitOfWork>();
 
 var app = builder.Build();
 
-//Luego de crear la app, se inyecata llamando el mÈtodo SeedData que recibe la app (WebApplication)
-SeedData(app);
+//Luego de crear la app, se inyecata llamando el m√©todo SeedData que recibe la app (WebApplication)
 
-void SeedData(WebApplication app)
+//CAMBIOS DE LA GUIA para que el programa no se bloquee al iniciar
+//SeedData(app);
+
+//Se cambi√≥ el m√©todo SeedData por SeedDataAsync y se agreg√≥ await
+await SeedDataAsync(app); //CAMBIO
+
+//void SeedData(WebApplication app)
+static async Task SeedDataAsync(WebApplication app) //CAMBIO
 {
     //scopedFactory es la forma de llamar las direcciones de los servicios
     var scopedFactory = app.Services.GetService<IServiceScopeFactory>();
 
-    //Con esto se garantiza que cada que se corra el programa se ejecute el mÈtodo SeedAsync de la clase SeedDb
+    //Con esto se garantiza que cada que se corra el programa se ejecute el m√©todo SeedAsync de la clase SeedDb
     using var scope = scopedFactory!.CreateScope();
     var service = scope.ServiceProvider.GetService<SeedDb>();
-    service!.SeedAsync().Wait(); //Es .Wait porque se llama un mÈtodo async desde un mÈtodo que no es async
+    //service!.SeedAsync().Wait(); //Es .Wait porque se llama un m√©todo async desde un m√©todo que no es async
+
+    await service!.SeedAsync(); //CAMBIO esto sin .Wait()
 
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())

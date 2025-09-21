@@ -1,4 +1,5 @@
-﻿using Orders.Shared.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using Orders.Shared.Entities;
 
 namespace Orders.Backend.Data;
 
@@ -22,11 +23,21 @@ public class SeedDb
         await _context.Database.EnsureCreatedAsync(); //Asegura que la BD exista, si no existe, se crea la BD.
 
         //Estos 2 métodos son para garantizar que existan los países y las categorías en la BD.
+        await CheckCountriesFullAsync();
         await CheckCountriesAsync();
         await CheckCategoriesAsync();
     }
 
     //Métodos privados para verificar y agregar categorías y países
+    private async Task CheckCountriesFullAsync()
+    {
+        if (!_context.Countries.Any())
+        {
+            var countriesSQLScript = File.ReadAllText("Data\\CountriesStatesCities.sql");
+            await _context.Database.ExecuteSqlRawAsync(countriesSQLScript);
+        }
+    }
+
     private async Task CheckCategoriesAsync()
     {
         if (!_context.Categories.Any()) //Método Any = alguna, se niega condición (!) "Si no hay categorías"

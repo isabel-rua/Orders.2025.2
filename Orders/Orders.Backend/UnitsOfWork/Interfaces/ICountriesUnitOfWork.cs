@@ -1,4 +1,5 @@
-﻿using Orders.Shared.Entities;
+﻿using Orders.Shared.DTOs;
+using Orders.Shared.Entities;
 using Orders.Shared.Responses;
 
 namespace Orders.Backend.UnitsOfWork.Interfaces;
@@ -7,6 +8,8 @@ namespace Orders.Backend.UnitsOfWork.Interfaces;
 //El Put, Post y Delete se heredan de la unidad de trabajo genérica
 public interface ICountriesUnitOfWork
 {
+    Task<ActionResponse<IEnumerable<Country>>> GetAsync(PaginationDTO pagination);
+
     Task<ActionResponse<Country>> GetAsync(int id);
 
     Task<ActionResponse<IEnumerable<Country>>> GetAsync();
