@@ -5,10 +5,12 @@ namespace Orders.Backend.Data;
 
 public class DataContext : DbContext
 {
+    //Construcción estructura lógica de la BD ↓
+
     //Esta clase representa el contexto de datos de la aplicación Orders.
     //Se utiliza para interactuar con la base de datos y gestionar las entidades relacionadas con los pedidos.
 
-    //El constructor de la clase DataContext recibe opciones de configuración para el contexto de datos.
+    //Constructor del contexto para la construcción de la BD (estructura lógica)
     //Sintaxis para crear el contructor de la BD
     public DataContext(DbContextOptions<DataContext> options) : base(options)
     {
@@ -16,13 +18,15 @@ public class DataContext : DbContext
 
     //Propiedad DbSet (generica) / Heredado de Entities (Esto es opcional)
     //Para acceder a la colección de categorías en la base de datos
+    //Crear tabla en la BD ↓
     public DbSet<Category> Categories { get; set; }
 
     public DbSet<City> Cities { get; set; }
     public DbSet<Country> Countries { get; set; }
     public DbSet<State> States { get; set; }
 
-    //Para indices únicos por nombre de las tablas de la BD ↓
+    //OnModelCreating se usa para configurar restricciones adicionales
+    //En este caso, SOLO para definir índices únicos sobre campos distintos al ID, como por ejemplo el nombre ↓
 
     //Se sobrescribe el método OnModelCreating para configurar el modelo de datos.
     //Esto es una validación a nivel de base de datos

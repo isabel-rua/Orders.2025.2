@@ -4,11 +4,36 @@ using Orders.Shared.Entities;
 
 namespace Orders.Backend.Controllers;
 
-[ApiController] //Indica que es un controlador de API
-[Route("api/[controller]")] //Define la ruta base para las solicitudes HTTP
+[ApiController]
+[Route("api/[controller]")]
 public class StatesController : GenericController<State>
 {
-    public StatesController(IGenericUnitOfWork<State> unitOfWork) : base(unitOfWork)
+    private readonly IStatesUnitOfWork _statesUnitOfWork;
+
+    public StatesController(IGenericUnitOfWork<State> unitOfWork, IStatesUnitOfWork statesUnitOfWork) : base(unitOfWork)
     {
+        _statesUnitOfWork = statesUnitOfWork;
+    }
+
+    [HttpGet]
+    public override async Task<IActionResult> GetAsync()
+    {
+        var response = await _statesUnitOfWork.GetAsync();
+        if (response.WasSuccess)
+        {
+            return Ok(response.Result);
+        }
+        return BadRequest();
+    }
+
+    [HttpGet("{id}")]
+    public override async Task<IActionResult> GetAsync(int id)
+    {
+        var response = await _statesUnitOfWork.GetAsync(id);
+        if (response.WasSuccess)
+        {
+            return Ok(response.Result);
+        }
+        return NotFound(response.Message);
     }
 }

@@ -17,7 +17,7 @@ public class Country : IEntityWithName
     [MaxLength(100, ErrorMessage = "El campo {0} no puede tener más de {1} caractéres.")]
 
     // Required para que el campo sea obligatorio
-    [Required(ErrorMessage = "El campo {0] es obligatorio.")]
+    [Required(ErrorMessage = "El campo {0} es obligatorio.")]
     public string Name { get; set; } = null!; //Condición null! es para no permitir null en ese campo
 
     //Para crear la relación con State (1:N)
