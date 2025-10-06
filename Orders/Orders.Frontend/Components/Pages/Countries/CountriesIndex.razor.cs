@@ -15,6 +15,7 @@ namespace Orders.Frontend.Components.Pages.Countries
         protected override async Task OnInitializedAsync()
         {
             var httResult = await Repository.GetAsync<List<Country>>("/api/countries");
+            Thread.Sleep(3000); //Simular retardo PRUEBA
             countries = httResult.Response;
         }
     }
