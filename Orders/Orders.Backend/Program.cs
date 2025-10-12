@@ -44,10 +44,12 @@ builder.Services.AddScoped(typeof(IGenericUnitOfWork<>), typeof(GenericUnitOfWor
 //y agregueme del GenericRepositor, agrege o implemente repositorio genérico"
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
+builder.Services.AddScoped<ICategoriesRepository, CategoriesRepository>();
 builder.Services.AddScoped<ICitiesRepository, CitiesRepository>();
 builder.Services.AddScoped<ICountriesRepository, CountriesRepository>();
 builder.Services.AddScoped<IStatesRepository, StatesRepository>();
 
+builder.Services.AddScoped<ICategoriesUnitOfWork, CategoriesUnitOfWork>();
 builder.Services.AddScoped<ICitiesUnitOfWork, CitiesUnitOfWork>();
 builder.Services.AddScoped<ICountriesUnitOfWork, CountriesUnitOfWork>();
 builder.Services.AddScoped<IStatesUnitOfWork, StatesUnitOfWork>();

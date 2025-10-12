@@ -26,6 +26,11 @@ public class CountriesRepository : GenericRepository<Country>, ICountriesReposit
             .Include(c => c.States)
             .AsQueryable();
 
+        if (!string.IsNullOrWhiteSpace(pagination.Filter))
+        {
+            queryable = queryable.Where(x => x.Name.ToLower().Contains(pagination.Filter.ToLower()));
+        }
+
         return new ActionResponse<IEnumerable<Country>>
         {
             WasSuccess = true,
@@ -34,6 +39,30 @@ public class CountriesRepository : GenericRepository<Country>, ICountriesReposit
                 .Paginate(pagination)
                 .ToListAsync()
         };
+    }
+
+    public override async Task<ActionResponse<int>> GetTotalRecordsAsync(PaginationDTO pagination)
+    {
+        var queryable = _context.Countries.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(pagination.Filter))
+        {
+            queryable = queryable.Where(x => x.Name.ToLower().Contains(pagination.Filter.ToLower()));
+        }
+
+        try
+        {
+            double count = await queryable.CountAsync();
+            return new ActionResponse<int>
+            {
+                WasSuccess = true,
+                Result = (int)count
+            };
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
     }
 
     //Sobreescribir métodos Get de la interfaz ICountriesRepository

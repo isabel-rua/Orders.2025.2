@@ -9,6 +9,8 @@ public interface ICountriesRepository
     //Tiene los mismos métodos que el repositorio genérico pero hay 2 métodos que son diferentes:
     //La sobrecarga de los dos Get (Get por id y el Get de todos)
     //Tambien se definen en la unidad de trabajo genérica
+    Task<ActionResponse<int>> GetTotalRecordsAsync(PaginationDTO pagination);
+
     Task<ActionResponse<IEnumerable<Country>>> GetAsync(PaginationDTO pagination);
 
     Task<ActionResponse<Country>> GetAsync(int id);
